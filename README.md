@@ -1,11 +1,11 @@
-# Full Stack Open 2025 – Part 8: GraphQL Exercises (8.1–8.7)
+# Full Stack Open 2025 – Part 8: GraphQL Exercises
 
 This repository contains my solutions for Part 8 of the Full Stack Open course. I implemented a GraphQL server using Apollo Server in the `library-backend.js` file.
 
 ## Files Included
 
 - `library-backend.js` – the main backend file for the GraphQL server
-- Screenshots for each exercise (8.1 to 8.7)
+- Screenshots for each exercise
 
 ---
 
@@ -38,3 +38,23 @@ This repository contains my solutions for Part 8 of the Full Stack Open course. 
 ### 8.7 – Add birth year to author
 
 ![8.7](./screenshots/8.7.png)
+
+### 8.8 – Edit author mutation
+
+![8.8](./screenshots/8.8.png)
+
+### 8.9 – Apollo Client setup
+
+![8.9](./screenshots/8.9.png)
+
+### 8.10 – Use Apollo Client to fetch authors
+
+![8.10](./screenshots/8.10.png)
+
+### 8.11 – Display authors in a table
+
+![8.11](./screenshots/8.11.png)
+
+### 8.12 – Form to update author's birth year
+
+![8.12](./screenshots/8.12.png)
