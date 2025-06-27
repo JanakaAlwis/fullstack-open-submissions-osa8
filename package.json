@@ -1,0 +1,25 @@
+{
+  "name": "fullstack-open-submissions-osa8",
+  "version": "1.0.0",
+  "main": "library-backend.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JanakaAlwis/fullstack-open-submissions-osa8.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/JanakaAlwis/fullstack-open-submissions-osa8/issues"
+  },
+  "homepage": "https://github.com/JanakaAlwis/fullstack-open-submissions-osa8#readme",
+  "description": "",
+  "dependencies": {
+    "@apollo/server": "^4.12.2",
+    "graphql": "^16.11.0",
+    "uuid": "^11.1.0"
+  }
+}
