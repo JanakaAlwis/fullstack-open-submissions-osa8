@@ -1,26 +1,38 @@
-import { useState } from "react";
+import { useState } from 'react'
+import { useMutation } from '@apollo/client'
+import { EDIT_AUTHOR, ALL_AUTHORS } from '../queries'
 
-const SetBirthYear = () => {
-  const [name, setName] = useState("");
-  const [born, setBorn] = useState("");
+export default function SetBirthYear({ authors }) {
+  const [name, setName] = useState('')
+  const [born, setBorn] = useState('')
 
-  const submit = (event) => {
-    event.preventDefault();
-    console.log("Set birthyear:", { name, born });
-    setName("");
-    setBorn("");
-  };
+  const [editAuthor] = useMutation(EDIT_AUTHOR, {
+    refetchQueries: [{ query: ALL_AUTHORS }],
+  })
+
+  const submit = async (e) => {
+    e.preventDefault()
+
+    editAuthor({
+      variables: { name, setBornTo: Number(born) }
+    })
+
+    setName('')
+    setBorn('')
+  }
 
   return (
     <div>
-      <h2>Set birthyear</h2>
+      <h3>Set Birthyear</h3>
       <form onSubmit={submit}>
         <div>
-          Name
-          <input
-            value={name}
-            onChange={({ target }) => setName(target.value)}
-          />
+          Author
+          <select value={name} onChange={({ target }) => setName(target.value)}>
+            <option value="">Select an author</option>
+            {authors.map((a) => (
+              <option key={a.name} value={a.name}>{a.name}</option>
+            ))}
+          </select>
         </div>
         <div>
           Born
@@ -30,10 +42,8 @@ const SetBirthYear = () => {
             onChange={({ target }) => setBorn(target.value)}
           />
         </div>
-        <button type="submit">Update author</button>
+        <button type="submit">Update Author</button>
       </form>
     </div>
-  );
-};
-
-export default SetBirthYear;
+  )
+}
