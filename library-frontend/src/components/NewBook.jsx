@@ -1,23 +1,43 @@
-import { useState } from 'react';
-import { useMutation } from '@apollo/client';
-import { ADD_BOOK, ALL_BOOKS, ALL_AUTHORS } from '../queries';
+import { useMutation } from '@apollo/client'
+import { useState } from 'react'
+import { ADD_BOOK, BOOKS_BY_GENRE } from '../queries'
 
 const NewBook = () => {
-  const [title, setTitle] = useState('');
-  const [author, setAuthor] = useState('');
-  const [published, setPublished] = useState('');
-  const [genreInput, setGenreInput] = useState('');
-  const [genres, setGenres] = useState([]);
+  const [title, setTitle] = useState('')
+  const [author, setAuthor] = useState('')
+  const [published, setPublished] = useState('')
+  const [genre, setGenre] = useState('')
+  const [genres, setGenres] = useState([])
 
   const [addBook] = useMutation(ADD_BOOK, {
-    refetchQueries: [{ query: ALL_BOOKS }, { query: ALL_AUTHORS }],
-    onError: (error) => {
-      console.error(error.graphQLErrors[0]?.message);
-    },
-  });
+    update: (cache, { data: { addBook } }) => {
+      const allGenres = [...addBook.genres, null] 
+
+      allGenres.forEach((g) => {
+        try {
+          const existing = cache.readQuery({
+            query: BOOKS_BY_GENRE,
+            variables: { genre: g },
+          })
+
+          if (!existing.allBooks.find(b => b.id === addBook.id)) {
+            cache.writeQuery({
+              query: BOOKS_BY_GENRE,
+              variables: { genre: g },
+              data: {
+                allBooks: [...existing.allBooks, addBook],
+              },
+            })
+          }
+        } catch (error) {
+          // Ignore if no cache exists yet for this genre
+        }
+      })
+    }
+  })
 
   const submit = async (event) => {
-    event.preventDefault();
+    event.preventDefault()
 
     await addBook({
       variables: {
@@ -25,64 +45,43 @@ const NewBook = () => {
         author,
         published: Number(published),
         genres,
-      },
-    });
+      }
+    })
 
-    setTitle('');
-    setAuthor('');
-    setPublished('');
-    setGenres([]);
-    setGenreInput('');
-  };
+    setTitle('')
+    setAuthor('')
+    setPublished('')
+    setGenres([])
+    setGenre('')
+  }
 
   const addGenre = () => {
-    if (genreInput.trim() !== '') {
-      setGenres(genres.concat(genreInput.trim()));
-      setGenreInput('');
-    }
-  };
+    setGenres(genres.concat(genre))
+    setGenre('')
+  }
 
   return (
     <div>
-      <h2>Add new book</h2>
+      <h2>Add a new book</h2>
       <form onSubmit={submit}>
         <div>
-          Title
-          <input
-            value={title}
-            onChange={({ target }) => setTitle(target.value)}
-            required
-          />
+          title <input value={title} onChange={({ target }) => setTitle(target.value)} />
         </div>
         <div>
-          Author
-          <input
-            value={author}
-            onChange={({ target }) => setAuthor(target.value)}
-            required
-          />
+          author <input value={author} onChange={({ target }) => setAuthor(target.value)} />
         </div>
         <div>
-          Published
-          <input
-            type="number"
-            value={published}
-            onChange={({ target }) => setPublished(target.value)}
-            required
-          />
+          published <input type="number" value={published} onChange={({ target }) => setPublished(target.value)} />
         </div>
         <div>
-          <input
-            value={genreInput}
-            onChange={({ target }) => setGenreInput(target.value)}
-          />
-          <button type="button" onClick={addGenre}>Add genre</button>
+          <input value={genre} onChange={({ target }) => setGenre(target.value)} />
+          <button type="button" onClick={addGenre}>add genre</button>
         </div>
-        <div>Genres: {genres.join(', ')}</div>
-        <button type="submit">Create book</button>
+        <div>genres: {genres.join(' ')}</div>
+        <button type="submit">create book</button>
       </form>
     </div>
-  );
-};
+  )
+}
 
-export default NewBook;
+export default NewBook
