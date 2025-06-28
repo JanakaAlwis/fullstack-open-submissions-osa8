@@ -15,12 +15,11 @@ export const ALL_BOOKS = gql`
     allBooks {
       id
       title
-      author {
-        name    // fix: fetch name of author
-        id
-      }
       published
       genres
+      author {
+        name
+      }
     }
   }
 `
@@ -89,4 +88,3 @@ export const BOOKS_BY_GENRE = gql`
     }
   }
 `
-

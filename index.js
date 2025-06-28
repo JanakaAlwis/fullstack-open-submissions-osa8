@@ -1,6 +1,10 @@
 require('dotenv').config()
 const { ApolloServer } = require('apollo-server-express')
 const express = require('express')
+const http = require('http')
+const { makeExecutableSchema } = require('@graphql-tools/schema')
+const { execute, subscribe } = require('graphql')
+const { SubscriptionServer } = require('subscriptions-transport-ws')
 const mongoose = require('mongoose')
 const jwt = require('jsonwebtoken')
 
@@ -23,9 +27,10 @@ mongoose.connect(MONGODB_URI)
 
 const app = express()
 
+const schema = makeExecutableSchema({ typeDefs, resolvers })
+
 const server = new ApolloServer({
-  typeDefs,
-  resolvers,
+  schema,
   context: async ({ req }) => {
     const auth = req ? req.headers.authorization : null
     if (auth && auth.toLowerCase().startsWith('bearer ')) {
@@ -35,7 +40,6 @@ const server = new ApolloServer({
         const currentUser = await User.findById(decodedToken.id)
         return { currentUser }
       } catch {
-        // invalid token
         return {}
       }
     }
@@ -47,8 +51,28 @@ async function start() {
   await server.start()
   server.applyMiddleware({ app })
 
+  const httpServer = http.createServer(app)
+
+  SubscriptionServer.create(
+    {
+      schema,
+      execute,
+      subscribe,
+      onConnect: () => {
+        console.log('Connected to websocket')
+      },
+      onDisconnect: () => {
+        console.log('Disconnected from websocket')
+      }
+    },
+    {
+      server: httpServer,
+      path: server.graphqlPath,
+    }
+  )
+
   const PORT = process.env.PORT || 4000
-  app.listen(PORT, () => {
+  httpServer.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}${server.graphqlPath}`)
   })
 }
